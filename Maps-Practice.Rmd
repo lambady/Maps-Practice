@@ -1,0 +1,44 @@
+---
+title: "Maps"
+author: "Leena Ambady"
+date: "2/18/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warnings = FALSE)
+library(tidycensus)
+library(tidyverse)
+library(stringr)
+census_api_key("41e31e7dc9f4be0cac86dd847ae1e2e19837090b")
+```
+
+
+```{r, include = FALSE}
+racevars <- c(White = "B02001_002", 
+              Black = "B02001_003", 
+              Asian = "B02001_005",
+              Hispanic = "B03003_003")
+
+santaclara <- get_acs(geography = "tract",
+                  variables = racevars, 
+                  year = 2018,
+                  state = "CA",
+                  county = "Santa Clara",
+                  geometry = TRUE,
+                  summary_var = "B02001_001") 
+```
+
+```{r}
+santaclara %>%
+  mutate(Percent = 100 * (estimate / summary_est)) %>%
+  ggplot(aes(fill = Percent, color = Percent)) +
+  facet_wrap(~ variable) +
+  geom_sf() +
+  scale_fill_viridis_c(direction = -1) +
+  scale_color_viridis_c(direction = -1) +
+  labs(title = "Racial geography of Santa Clara County, California",
+       caption = "Source: American Community Survey 2014-2018") +
+  theme_void()
+```
+
